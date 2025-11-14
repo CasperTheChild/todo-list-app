@@ -60,6 +60,18 @@ public class TodoListController : ControllerBase
         return CreatedAtAction(nameof(GetAll), new {Id =  newModel.Id}, newModel);
     }
 
+    [HttpPatch("{id}")]
+    [Consumes("application/json-patch+json")]
+    public async Task<ActionResult<TodoListModel>> Patch(int id, JsonPatchDocument<TodoListUpdateModel> patchDoc)
+    {
+        var updatedModel = await this.service.PatchAsync(id, patchDoc);
+        if (updatedModel == null)
+        {
+            return NotFound();
+        }
+        return Ok(updatedModel);
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, TodoListCreateModel model)
     {

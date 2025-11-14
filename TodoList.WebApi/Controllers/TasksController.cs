@@ -45,6 +45,18 @@ namespace TodoList.WebApi.Controllers
             return Ok(models);
         }
 
+        [HttpPatch("{id}")]
+        [Consumes("application/json-patch+json")]
+        public async Task<ActionResult<TaskModel>> PatchAsync(int todoListId, int id, Microsoft.AspNetCore.JsonPatch.JsonPatchDocument<TaskUpdateModel> patchDoc)
+        {
+            var entity = await this.service.Patch(todoListId, id, patchDoc);
+            if (entity == null)
+            {
+                return NotFound();
+            }
+            return Ok(entity);
+        }
+
         [HttpPost]
         public async Task<ActionResult<TaskModel>> PostAsync(int todoListId, TaskCreateModel model)
         {

@@ -1,4 +1,5 @@
-﻿using TodoList.WebApi.Models.Models;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using TodoList.WebApi.Models.Models;
 
 namespace TodoList.Services.Interfaces;
 
@@ -9,6 +10,8 @@ public interface ITodoListRepository
     Task<TodoListModel> CreateAsync(TodoListCreateModel model);
 
     Task<bool> UpdateAsync(int id, TodoListCreateModel model);
+
+    Task<TodoListModel?> PatchAsync(int id, JsonPatchDocument<TodoListUpdateModel> patchDoc);
 
     Task<bool> DeleteAsync(int id);
 

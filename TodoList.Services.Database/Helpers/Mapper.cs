@@ -106,6 +106,24 @@ public static class Mapper
         entity.StartDate = model.StartDate;
     }
 
+    public static void UpdateEntity(TodoListEntity entity, TodoListUpdateModel model)
+    {
+        if (model.Title != null)
+        {
+            entity.Title = model.Title;
+        }
+
+        if (model.Description != null)
+        {
+            entity.Description = model.Description;
+        }
+
+        if (model.StartDate != null)
+        {
+            entity.StartDate = (DateTime)model.StartDate;
+        }
+    }
+
     public static void UpdateEntity(TaskEntity entity, TaskCreateModel model)
     {
         entity.Title = model.Title;
@@ -113,5 +131,33 @@ public static class Mapper
         entity.StartDate = model.StartDate;
         entity.EndDate = model.EndDate;
         entity.IsCompleted = model.IsCompleted;
+    }
+
+    public static void UpdateEntity(TaskEntity entity, TaskUpdateModel model)
+    {
+        if (model.Title != null)
+        {
+            entity.Title = model.Title;
+        }
+
+        if (model.Description != null)
+        {
+            entity.Description = model.Description;
+        }
+
+        if (entity.EndDate != null)
+        {
+            entity.EndDate = model.EndDate;
+        }
+
+        if (model.StartDate != null)
+        {
+            entity.StartDate = (DateTime)model.StartDate;
+        }
+
+        if (model.IsCompleted != null)
+        {
+            entity.IsCompleted = (bool)model.IsCompleted;
+        }
     }
 }

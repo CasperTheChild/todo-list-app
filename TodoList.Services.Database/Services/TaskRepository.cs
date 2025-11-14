@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TodoList.Services.Database.Context;
 using TodoList.Services.Interfaces;
 using TodoList.WebApi.Models.Helpers;
@@ -63,6 +65,25 @@ public class TaskRepository : ITaskRepository
         {
             return null;
         }
+
+        return Mapper.ToModel(entity);
+    }
+
+    public async Task<TaskModel?> Patch(int todoListId, int id, JsonPatchDocument<TaskUpdateModel> patchDoc)
+    {
+        var entity = this.context.Tasks.Where(t => t.Id == id && t.TodoListId == todoListId).FirstOrDefault();
+
+        if (entity == null)
+        {
+            return null;
+        }
+
+        var model = new TaskUpdateModel();
+
+        patchDoc.ApplyTo(model);
+        Mapper.UpdateEntity(entity, model);
+
+        await this.context.SaveChangesAsync();
 
         return Mapper.ToModel(entity);
     }

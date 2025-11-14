@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoList.Services.WebApi", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoList.WebApp", "TodoList.WebApp\TodoList.WebApp.csproj", "{30D747E4-FA20-43C0-BEFE-993EC9EB373F}"
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "todolist.webapp.react", "TodoList.WebApp.React\todolist.webapp.react.esproj", "{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,12 @@ Global
 		{30D747E4-FA20-43C0-BEFE-993EC9EB373F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30D747E4-FA20-43C0-BEFE-993EC9EB373F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30D747E4-FA20-43C0-BEFE-993EC9EB373F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
