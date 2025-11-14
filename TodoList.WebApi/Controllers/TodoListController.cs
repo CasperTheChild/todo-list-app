@@ -1,0 +1,86 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using TodoList.Services.Interfaces;
+using TodoList.WebApi.Models.Models;
+using Microsoft.AspNetCore.JsonPatch;
+
+namespace TodoList.WebApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class TodoListController : ControllerBase
+{
+    private ITodoListRepository service;
+
+    public TodoListController(ITodoListRepository service)
+    {
+        this.service = service;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TodoListModel>>> GetAll()
+    {
+        var models = await this.service.GetAllAsync();
+
+        return Ok(models);
+    }
+
+    [HttpGet("paged")]
+    public async Task<ActionResult<PaginatedModel<TodoListModel>>> GetPaginated(int pageNum, int pageSize)
+    {
+        var models = await this.service.GetAllAsync(pageNum, pageSize);
+
+        return Ok(models);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TodoListModel>> GetById(int id)
+    {
+        var model = await this.service.GetAsync(id);
+
+        if (model == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(model);
+    }
+
+    [HttpGet("preview")]
+    public async Task<ActionResult<TodoListPreviewModel>> GetAllPreviewPaginated(int pageNum, int pageSize)
+    {
+        var models = await this.service.GetAllPreviewAsync(pageNum, pageSize);
+
+        return Ok(models);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(TodoListCreateModel model)
+    {
+        var newModel = await this.service.CreateAsync(model);
+        return CreatedAtAction(nameof(GetAll), new {Id =  newModel.Id}, newModel);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, TodoListCreateModel model)
+    {
+        var success = await this.service.UpdateAsync(id, model);
+        if (!success)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await this.service.DeleteAsync(id);
+        if (success)
+        {
+            return NoContent();
+        }
+
+        return NotFound();
+    }
+}
