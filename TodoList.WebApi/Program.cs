@@ -29,11 +29,24 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
 });
 
+builder.Services.AddCors(opts =>
+{
+    opts.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:51502")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 //builder.Services.AddSingleton<>();
 
 var app = builder.Build();
 
 app.MapControllers();
+
+app.UseCors("AllowFrontend");
 
 app.MapGet("/", context =>
 {

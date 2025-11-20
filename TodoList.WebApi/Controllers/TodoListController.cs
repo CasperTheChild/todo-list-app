@@ -46,7 +46,7 @@ public class TodoListController : ControllerBase
     }
 
     [HttpGet("preview")]
-    public async Task<ActionResult<TodoListPreviewModel>> GetAllPreviewPaginated(int pageNum, int pageSize)
+    public async Task<ActionResult<PaginatedModel<TodoListPreviewModel>>> GetAllPreviewPaginated(int pageNum, int pageSize)
     {
         var models = await this.service.GetAllPreviewAsync(pageNum, pageSize);
 

@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoList.Services.WebApi", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoList.WebApp", "TodoList.WebApp\TodoList.WebApp.csproj", "{30D747E4-FA20-43C0-BEFE-993EC9EB373F}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "todolist.webapp.react", "TodoList.WebApp.React\todolist.webapp.react.esproj", "{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "TodoList.WebApp.React", "TodoList.WebApp.React\TodoList.WebApp.React.esproj", "{9E6FF605-F4D9-DF77-CDB0-620CCD10E0C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
