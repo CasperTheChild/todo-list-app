@@ -1,11 +1,21 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using TodoList.Services.Database.Context;
+using TodoList.Services.Database.Identity;
 using TodoList.Services.Database.Services;
 using TodoList.Services.Interfaces;
 using TodoList.Services.Services;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc;
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +26,9 @@ builder.Services.AddDbContext<TodoListDbContext>(opts =>
 
 builder.Services.AddScoped<ITodoListRepository, TodoListRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
@@ -27,26 +40,72 @@ builder.Services.Configure<MvcNewtonsoftJsonOptions>(opts =>
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
-});
 
-builder.Services.AddCors(opts =>
-{
-    opts.AddPolicy("AllowFrontend",
-        policy =>
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Enter: Bearer {your token}",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
         {
-            policy.WithOrigins("http://localhost:51502")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { securityScheme, new string[] { } }
+    });
 });
 
-//builder.Services.AddSingleton<>();
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<TodoListDbContext>()
+.AddDefaultTokenProviders();
+
+var jwt = builder.Configuration.GetSection("Jwt");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwt["Issuer"],
+        ValidAudience = jwt["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]))
+    };
+});
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.MapControllers();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.UseCors("AllowFrontend");
+app.MapControllers();
 
 app.MapGet("/", context =>
 {
@@ -60,21 +119,28 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApp");
 });
 
+
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<TodoListDbContext>();
-    await db.Database.EnsureCreatedAsync();
-    await SeedData.InitializeAsync(db);
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<TodoListDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        logger.LogInformation("Applying migrations...");
+        await db.Database.MigrateAsync();
+
+        logger.LogInformation("Running seed data...");
+        await SeedData.InitializeAsync(db, userManager, logger);
+        logger.LogInformation("Seed finished.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        throw; // rethrow so you see the error if running locally
+    }
 }
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<TodoListDbContext>();
-//    await db.Database.EnsureDeletedAsync();  // ?? Drops everything
-//    await db.Database.EnsureCreatedAsync();  // Rebuilds schema fresh
-//}
-
-//var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<TodoListDbContext>();
-//SeedData.SeedDatabase(context);
 
 app.Run();

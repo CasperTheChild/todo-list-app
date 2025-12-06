@@ -2,9 +2,11 @@
 using TodoList.Services.Interfaces;
 using TodoList.WebApi.Models.Models;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TodoList.WebApi.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TodoListController : ControllerBase
@@ -20,6 +22,11 @@ public class TodoListController : ControllerBase
     public async Task<ActionResult<IEnumerable<TodoListModel>>> GetAll()
     {
         var models = await this.service.GetAllAsync();
+
+        Console.WriteLine(HttpContext.User.Claims
+            .Select(c => $"{c.Type} = {c.Value}")
+            .Aggregate((a, b) => a + "\n" + b));
+
 
         return Ok(models);
     }

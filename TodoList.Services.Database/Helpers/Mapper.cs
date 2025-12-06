@@ -6,17 +6,18 @@ namespace TodoList.WebApi.Models.Helpers;
 
 public static class Mapper
 {
-    public static TodoListEntity ToEntityFromCreate(TodoListCreateModel model)
+    public static TodoListEntity ToEntityFromCreate(TodoListCreateModel model, string userId)
     {
         return new TodoListEntity
         {
             Title = model.Title,
             Description = model.Description,
             StartDate = model.StartDate,
+            UserId = userId,
         };
     }
 
-    public static TaskEntity ToEntityFromCreate(int todoListId, TaskCreateModel model)
+    public static TaskEntity ToEntityFromCreate(int todoListId, TaskCreateModel model, string userId)
     {
         return new TaskEntity
         {
@@ -26,6 +27,7 @@ public static class Mapper
             EndDate = model.EndDate,
             IsCompleted = model.IsCompleted,
             TodoListId = todoListId,
+            UserId = userId,
         };
     }
 
@@ -40,18 +42,6 @@ public static class Mapper
         };
     }
 
-    public static TodoListPreviewModel ToPreviewModel(TodoListEntity entity)
-    {
-        return new TodoListPreviewModel
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Description = entity.Description,
-            StartDate = entity.StartDate,
-            Tasks = entity.Tasks != null ? entity.Tasks.Select(t => Mapper.ToModel(t)).ToList() : new List<TaskModel>(),
-        };
-    }
-
     public static TaskModel ToModel(TaskEntity entity)
     {
         return new TaskModel
@@ -63,6 +53,18 @@ public static class Mapper
             EndDate = entity.EndDate,
             IsCompleted = entity.IsCompleted,
             TodoListId = entity.TodoListId,
+        };
+    }
+
+    public static TodoListPreviewModel ToPreviewModel(TodoListEntity entity)
+    {
+        return new TodoListPreviewModel
+        {
+            Id = entity.Id,
+            Title = entity.Title,
+            Description = entity.Description,
+            StartDate = entity.StartDate,
+            Tasks = entity.Tasks != null ? entity.Tasks.Select(t => Mapper.ToModel(t)).ToList() : new List<TaskModel>(),
         };
     }
 

@@ -13,14 +13,19 @@ public class TodoListRepository : ITodoListRepository
 {
     private readonly TodoListDbContext context;
 
-    public TodoListRepository(TodoListDbContext context)
+    private readonly ICurrentUserService user;
+
+    public TodoListRepository(TodoListDbContext context, ICurrentUserService user)
     {
         this.context = context;
+        this.user = user;
     }
 
     public async Task<TodoListModel> CreateAsync(TodoListCreateModel model)
     {
-        var entity = Mapper.ToEntityFromCreate(model);
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entity = Mapper.ToEntityFromCreate(model, userId);
 
         await this.context.TodoLists.AddAsync(entity);
         await this.context.SaveChangesAsync();
@@ -30,7 +35,9 @@ public class TodoListRepository : ITodoListRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var entity = await this.context.TodoLists.FindAsync(id);
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entity = await this.context.TodoLists.Where(u => u.UserId == userId && u.Id == id).FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -45,23 +52,33 @@ public class TodoListRepository : ITodoListRepository
 
     public async Task<PaginatedModel<TodoListModel>?> GetAllAsync(int pageNum, int pageSize)
     {
-        var entities = await this.context.TodoLists.ToListAsync();
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
 
-        var res = entities.Select(entity => Mapper.ToModel(entity)).Skip((pageNum - 1) * pageSize).Take(pageSize);
+        var query = this.context.TodoLists.Where(u => u.UserId == userId);
 
-        return Mapper.ToPaginatedModel(res, entities.Count, pageNum, pageSize);
+        var totalItems = await query.CountAsync();
+
+        var entities = await query.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        var res = entities.Select(entity => Mapper.ToModel(entity));
+
+        return Mapper.ToPaginatedModel(res, totalItems, pageNum, pageSize);
     }
 
     public async Task<IEnumerable<TodoListModel>?> GetAllAsync()
     {
-        var entities = await this.context.TodoLists.ToListAsync();
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entities = await this.context.TodoLists.Where(u => u.UserId == userId).ToListAsync();
 
         return entities.Select(entity => Mapper.ToModel(entity));
     }
 
     public async Task<PaginatedModel<TodoListPreviewModel>> GetAllPreviewAsync(int pageNum, int pageSize)
     {
-        var entities = await this.context.TodoLists.Take(pageSize).Include(t => t.Tasks).ToListAsync();
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entities = await this.context.TodoLists.Where(u => u.UserId == userId).Skip((pageNum - 1) * pageSize).Take(pageSize).Include(t => t.Tasks).ToListAsync();
 
         var models = entities.Select(t => Mapper.ToPreviewModel(t));
 
@@ -70,7 +87,9 @@ public class TodoListRepository : ITodoListRepository
 
     public async Task<TodoListModel?> GetAsync(int id)
     {
-        var entity = await this.context.TodoLists.FindAsync(id);
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entity = await this.context.TodoLists.Where(u => u.UserId == userId && u.Id == id).FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -82,7 +101,9 @@ public class TodoListRepository : ITodoListRepository
 
     public async Task<TodoListModel?> PatchAsync(int id, JsonPatchDocument<TodoListUpdateModel> patchDoc)
     {
-        var entity = await this.context.TodoLists.FindAsync(id);
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entity = await this.context.TodoLists.Where(u => u.UserId == userId && u.Id == id).FirstOrDefaultAsync();
 
         if (entity == null)
         {
@@ -105,7 +126,9 @@ public class TodoListRepository : ITodoListRepository
 
     public async Task<bool> UpdateAsync(int id, TodoListCreateModel model)
     {
-        var entity = await this.context.TodoLists.FindAsync(id);
+        var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
+
+        var entity = await this.context.TodoLists.Where(u => u.UserId == userId && u.Id == id).FirstOrDefaultAsync();
 
         if (entity == null)
         {

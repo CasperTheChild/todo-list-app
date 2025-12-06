@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TodoList.Services.Database.Identity;
 
 namespace TodoList.Services.Database.Entities;
 
@@ -13,8 +14,12 @@ public class TodoListEntity
 
     public DateTime StartDate { get; set; } = DateTime.Today;
 
-    public ICollection<TaskEntity>? Tasks { get; set; } = new List<TaskEntity>();
+    public ICollection<TaskEntity> Tasks { get; set; } = new List<TaskEntity>();
 
     [NotMapped]
-    public bool HasOverdueTaks => this.Tasks != null && this.Tasks.Any(t => !t.IsCompleted && t.EndDate < DateTime.Now);
+    public bool HasOverdueTasks => this.Tasks != null && this.Tasks.Any(t => !t.IsCompleted && t.EndDate < DateTime.Now);
+
+    public string UserId { get; set; } = default!;
+
+    public ApplicationUser User { get; set; }
 }
