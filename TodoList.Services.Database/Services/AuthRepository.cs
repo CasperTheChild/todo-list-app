@@ -62,8 +62,6 @@ public class AuthRepository : IAuthRepository
         return GenerateToken(user);
     }
 
-    
-
     private string GenerateToken(ApplicationUser user)
     {
         var jwtSettings = configuration.GetSection("Jwt");

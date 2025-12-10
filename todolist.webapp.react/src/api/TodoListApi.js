@@ -1,15 +1,22 @@
-async function getPagedTodoList(pageNum, pageSize) {
+async function getPagedTodoList(pageNum, pageSize, token) {
     const url = `/api/TodoList/paged?pageNum=${pageNum}&pageSize=${pageSize}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` }},
+    );
     const data = await response.json();
     return data;
 }
 
-async function createTodoList(todoList) {
+async function createTodoList(todoList, token) {
     const url = `/api/TodoList`
     const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, },
         body: JSON.stringify(todoList),
     });
 
@@ -20,10 +27,14 @@ async function createTodoList(todoList) {
     return res.json();
 }
 
-async function deleteTodoList(id) {
+async function deleteTodoList(id, token) {
     const url = `/api/TodoList/${id}`
     const response = await fetch(url, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        }
     });
 
     if (response.status === 204) {
@@ -33,12 +44,15 @@ async function deleteTodoList(id) {
     throw new Error("Failed to delete todo list");
 }
 
-async function editTodoList(id, newTodoList) {
+async function editTodoList(id, newTodoList, token) {
     const url = `/api/TodoList/${id}`
     const res = await fetch(url, {
         method: 'PUT',
         body: JSON.stringify(newTodoList),
-        headers: { "Content-Type": "application/json" }
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        }
     })
 
     if (!res.ok) {
