@@ -1,8 +1,13 @@
 import PageButton from '../components/PageButton.jsx'
 import EditTodoListForm from './EditTodoListForm.jsx'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import CreateTodoListForm from './CreateTodoListForm.jsx'
+import apiService from '../api/TodoListApi.js'
+import { useAuth } from '../auth/AuthContext.jsx'
 
-export default function TodoListTable({ todoList, pageNum, setPageNum, handleDelete, handleEdit }) {
+export default function TodoListTable({ setTodoListId }) {
+    const { token } = useAuth();
+
     const [editTodoListId, setEditTodoListId] = useState(null);
     const [editTodoListData, setEditTodoListData] = useState({
         title: "",
@@ -24,6 +29,55 @@ export default function TodoListTable({ todoList, pageNum, setPageNum, handleDel
         setEditTodoListId(null);
     }
 
+        const [todoList, setTodoList] = useState({
+        items: [],
+        totalCount: 0,
+        pageNum: 1,
+        pageSize: 4,
+        totalPages: 0,
+    })
+
+    const [pageSize, setPageSize] = useState(4)
+    const [pageNum, setPageNum] = useState(1)
+
+    useEffect(() => {
+        apiService.getPagedTodoList(pageNum, pageSize, token)
+            .then(data => setTodoList(data));
+    }, [pageNum, pageSize])
+
+    async function handleCreateTodoList(newTodoList) {
+        try {
+            await apiService.createTodoList(newTodoList, token);
+            const updated = await apiService.getPagedTodoList(pageNum, pageSize, token);
+            setTodoList(updated);
+        }
+        catch (error) {
+            console.error("Failed to create todo list:", error);
+        }
+    }
+
+    async function handleDeleteTodoList(id) {
+        try {
+            await apiService.deleteTodoList(id, token);
+            const updated = await apiService.getPagedTodoList(pageNum, pageSize, token);
+            setTodoList(updated);
+        }
+        catch (error) {
+            console.error("Failed to create todo list:", error);
+        }
+    }
+
+    async function handleEditTodoList(id, newTodoList) {
+        try {
+            await apiService.editTodoList(id, newTodoList, token);
+            const updated = await apiService.getPagedTodoList(pageNum, pageSize, token);
+            setTodoList(updated);
+        }
+        catch (error) {
+            console.error("Failed to create todo list:", error);
+        }
+    }
+
     console.log("TABLE PROPS:", todoList);
 
     return (
@@ -40,8 +94,9 @@ export default function TodoListTable({ todoList, pageNum, setPageNum, handleDel
                                 <td>{todo.description}</td>
                                 <td>{todo.startDate}</td>
                                 <td>{todo.hasOverdueTask}</td>
-                                <td><button onClick={() => handleDelete(todo.id)}>Delete</button></td>
+                                <td><button onClick={() => handleDeleteTodoList(todo.id)}>Delete</button></td>
                                 <td><button onClick={() => openEditTodoListId(todo.id)}>Edit</button></td>
+                                <td><button onClick={() => setTodoListId(todo.id)}>Tasks</button></td>
                             </tr>
                         ))
                     }
@@ -72,6 +127,11 @@ export default function TodoListTable({ todoList, pageNum, setPageNum, handleDel
                     />
                 </div>
             )}
+
+
+            <CreateTodoListForm
+                onCreate={handleCreateTodoList}
+            />
         </section>
     )
 }

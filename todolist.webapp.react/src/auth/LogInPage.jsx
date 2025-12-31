@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../components/AuthContext.jsx'
+import { useAuth } from './AuthContext.jsx'
 
 function LogInPage() {
     const [form, setForm] = useState({

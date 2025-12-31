@@ -67,7 +67,7 @@ public class TasksController : ControllerBase
         return Ok(entity);
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(int todoListId, int id)
     {
         var success = await this.service.DeleteAsync(todoListId, id);
