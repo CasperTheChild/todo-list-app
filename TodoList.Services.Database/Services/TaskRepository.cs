@@ -29,6 +29,10 @@ public class TaskRepository : ITaskRepository
         await this.context.Tasks.AddAsync(entity);
         await this.context.SaveChangesAsync();
 
+        var taskAssignmentEntity = Mapper.ToTaskAssignmentEntity(entity.Id, userId);
+        await this.context.TaskAssignments.AddAsync(taskAssignmentEntity);
+        await this.context.SaveChangesAsync();
+
         return Mapper.ToModel(entity);
     }
 

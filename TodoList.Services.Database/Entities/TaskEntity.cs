@@ -24,4 +24,6 @@ public class TaskEntity
     public string UserId { get; set; } = default!;
 
     public ApplicationUser User { get; set; }
+
+    public ICollection<TaskAssignmentEntity> AssignedUsers { get; set; } = new List<TaskAssignmentEntity>();
 }

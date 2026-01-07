@@ -31,6 +31,7 @@ public static class SeedData
                     logger.LogError("Failed to create default user. Errors: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
                     throw new Exception("Could not create default user for seeding.");
                 }
+
                 logger.LogInformation("Default user created: {Email}", defaultEmail);
             }
             else

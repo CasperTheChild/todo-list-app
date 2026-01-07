@@ -1,5 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.Http;
+using System.Runtime.CompilerServices;
 using TodoList.Services.Database.Entities;
+using TodoList.Services.Database.Identity;
 using TodoList.WebApi.Models.Models;
 
 namespace TodoList.WebApi.Models.Helpers;
@@ -56,6 +58,15 @@ public static class Mapper
         };
     }
 
+    public static UserSummaryModel ToModel(ApplicationUser entity)
+    {
+        return new UserSummaryModel
+        {
+            Id = entity.Id,
+            Email = entity.Email!,
+        };
+    }
+
     public static TodoListPreviewModel ToPreviewModel(TodoListEntity entity)
     {
         return new TodoListPreviewModel
@@ -93,6 +104,17 @@ public static class Mapper
     public static PaginatedModel<TaskModel> ToPaginatedModel(IEnumerable<TaskModel> models, int totalItems, int pageNum, int pageSize)
     {
         return new PaginatedModel<TaskModel>
+        {
+            Items = models,
+            TotalItems = totalItems,
+            ItemsPerPage = pageSize,
+            CurrentPage = pageNum,
+        };
+    }
+
+    public static PaginatedModel<UserSummaryModel> ToPaginatedModel(IEnumerable<UserSummaryModel> models, int totalItems, int pageNum, int pageSize)
+    {
+        return new PaginatedModel<UserSummaryModel>
         {
             Items = models,
             TotalItems = totalItems,
@@ -161,5 +183,14 @@ public static class Mapper
         {
             entity.IsCompleted = (bool)model.IsCompleted;
         }
+    }
+
+    public static TaskAssignmentEntity ToTaskAssignmentEntity(int taskId, string userId)
+    {
+        return new TaskAssignmentEntity
+        {
+            TaskId = taskId,
+            UserId = userId,
+        };
     }
 }

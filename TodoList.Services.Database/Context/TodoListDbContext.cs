@@ -19,6 +19,8 @@ public class TodoListDbContext : IdentityDbContext<ApplicationUser, IdentityRole
 
     public DbSet<TaskEntity> Tasks { get; set; }
 
+    public DbSet<TaskAssignmentEntity> TaskAssignments { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
     }
@@ -44,5 +46,18 @@ public class TodoListDbContext : IdentityDbContext<ApplicationUser, IdentityRole
             .WithMany(l => l.Tasks)
             .HasForeignKey(t => t.TodoListId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TaskAssignmentEntity>(entity =>
+        {
+            entity.HasKey(ta => new { ta.TaskId, ta.UserId });
+            entity.HasOne(ta => ta.Task)
+                .WithMany(t => t.AssignedUsers)
+                .HasForeignKey(ta => ta.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(ta => ta.User)
+                .WithMany()
+                .HasForeignKey(ta => ta.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }
