@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoList.Services.Database.Context;
 using TodoList.Services.Database.Entities;
+using TodoList.Services.Database.Helpers;
 using TodoList.Services.Enums;
 using TodoList.Services.Interfaces;
-using TodoList.WebApi.Models.Helpers;
 using TodoList.WebApi.Models.Models;
 
 namespace TodoList.Services.Database.Services;
@@ -48,9 +48,9 @@ public class TaskAssignmentRepository : ITaskAssignmentRepository
 
         var entities = await query.ToListAsync();
 
-        var models = entities.Select(t => Mapper.ToModel(t.Task));
+        var models = entities.Select(t => TaskMapper.ToModel(t.Task));
 
-        return Mapper.ToPaginatedModel(models, totalItems, options.PageNum, options.PageSize);
+        return PaginationMapper.ToPaginatedModel(models, totalItems, options.PageNum, options.PageSize);
     }
 
     public async Task AssignTaskToUserAsync(string userId, int taskId)
@@ -62,7 +62,7 @@ public class TaskAssignmentRepository : ITaskAssignmentRepository
             throw new InvalidOperationException("Task is already assigned to the user.");
         }
 
-        var taskAssignmentEntity = Mapper.ToTaskAssignmentEntity(taskId, userId);
+        var taskAssignmentEntity = TaskAssignmentMapper.ToTaskAssignmentEntity(taskId, userId);
 
         this.context.TaskAssignments.Add(taskAssignmentEntity);
 

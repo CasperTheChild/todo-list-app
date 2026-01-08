@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using TodoList.Services.Database.Context;
+using TodoList.Services.Database.Helpers;
 using TodoList.Services.Interfaces;
-using TodoList.WebApi.Models.Helpers;
 using TodoList.WebApi.Models.Models;
 
 namespace TodoList.Services.Services;
@@ -26,12 +26,12 @@ public class TodoListRepository : ITodoListRepository
     {
         var userId = this.user.UserId ?? throw new InvalidOperationException("User ID cannot be null.");
 
-        var entity = Mapper.ToEntityFromCreate(model, userId);
+        var entity = TodoListMapper.ToEntityFromCreate(model, userId);
 
         await this.context.TodoLists.AddAsync(entity);
         await this.context.SaveChangesAsync();
 
-        return Mapper.ToModel(entity);
+        return TodoListMapper.ToModel(entity);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -61,9 +61,9 @@ public class TodoListRepository : ITodoListRepository
 
         var entities = await query.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
 
-        var res = entities.Select(entity => Mapper.ToModel(entity));
+        var res = entities.Select(entity => TodoListMapper.ToModel(entity));
 
-        return Mapper.ToPaginatedModel(res, totalItems, pageNum, pageSize);
+        return PaginationMapper.ToPaginatedModel(res, totalItems, pageNum, pageSize);
     }
 
     public async Task<IEnumerable<TodoListModel>?> GetAllAsync()
@@ -72,7 +72,7 @@ public class TodoListRepository : ITodoListRepository
 
         var entities = await this.context.TodoLists.Where(u => u.UserId == userId).ToListAsync();
 
-        return entities.Select(entity => Mapper.ToModel(entity));
+        return entities.Select(entity => TodoListMapper.ToModel(entity));
     }
 
     public async Task<PaginatedModel<TodoListPreviewModel>> GetAllPreviewAsync(int pageNum, int pageSize)
@@ -81,9 +81,9 @@ public class TodoListRepository : ITodoListRepository
 
         var entities = await this.context.TodoLists.Where(u => u.UserId == userId).Skip((pageNum - 1) * pageSize).Take(pageSize).Include(t => t.Tasks).ToListAsync();
 
-        var models = entities.Select(t => Mapper.ToPreviewModel(t));
+        var models = entities.Select(t => TodoListMapper.ToPreviewModel(t));
 
-        return Mapper.ToPaginatedModel(models, models.Count(), pageNum, pageSize);
+        return PaginationMapper.ToPaginatedModel(models, models.Count(), pageNum, pageSize);
     }
 
     public async Task<TodoListModel?> GetAsync(int id)
@@ -97,7 +97,7 @@ public class TodoListRepository : ITodoListRepository
             return null;
         }
 
-        return Mapper.ToModel(entity);
+        return TodoListMapper.ToModel(entity);
     }
 
     public async Task<TodoListModel?> PatchAsync(int id, JsonPatchDocument<TodoListUpdateModel> patchDoc)
@@ -119,10 +119,10 @@ public class TodoListRepository : ITodoListRepository
         };
 
         patchDoc.ApplyTo(model);
-        Mapper.UpdateEntity(entity, model);
+        TodoListMapper.UpdateEntity(entity, model);
         await this.context.SaveChangesAsync();
 
-        return Mapper.ToModel(entity);
+        return TodoListMapper.ToModel(entity);
     }
 
     public async Task<bool> UpdateAsync(int id, TodoListCreateModel model)
@@ -136,7 +136,7 @@ public class TodoListRepository : ITodoListRepository
             return false;
         }
 
-        Mapper.UpdateEntity(entity, model);
+        TodoListMapper.UpdateEntity(entity, model);
         await this.context.SaveChangesAsync();
 
         return true;

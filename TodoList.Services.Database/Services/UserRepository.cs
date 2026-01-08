@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoList.Services.Database.Context;
+using TodoList.Services.Database.Helpers;
 using TodoList.Services.Interfaces;
-using TodoList.WebApi.Models.Helpers;
 using TodoList.WebApi.Models.Models;
 
 namespace TodoList.Services.Database.Services;
@@ -47,8 +47,8 @@ public class UserRepository : IUserRepository
 
         var entities = await query.Skip((pageNum - 1) * pageSize).Take(pageSize).ToListAsync();
 
-        var res = entities.Select(entity => Mapper.ToModel(entity));
+        var res = entities.Select(entity => UserMapper.ToModel(entity));
 
-        return Mapper.ToPaginatedModel(res, totalItems, pageNum, pageSize);
+        return PaginationMapper.ToPaginatedModel(res, totalItems, pageNum, pageSize);
     }
 }
