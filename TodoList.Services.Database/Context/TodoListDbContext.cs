@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TodoList.Services.Database.Entities;
@@ -20,6 +21,10 @@ public class TodoListDbContext : IdentityDbContext<ApplicationUser, IdentityRole
     public DbSet<TaskEntity> Tasks { get; set; }
 
     public DbSet<TaskAssignmentEntity> TaskAssignments { get; set; }
+
+    public DbSet<TagEntity> Tags { get; set; }
+
+    public DbSet<TaskTagEntity> TaskTags { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
@@ -59,5 +64,25 @@ public class TodoListDbContext : IdentityDbContext<ApplicationUser, IdentityRole
                 .HasForeignKey(ta => ta.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        modelBuilder.Entity<TaskTagEntity>(entity =>
+        {
+            entity.HasKey(tt => new { tt.TaskId, tt.TagId });
+            entity.HasOne(tt => tt.Task)
+                .WithMany(t => t.TaskTags)
+                .HasForeignKey(tt => tt.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(tt => tt.Tag)
+                .WithMany(t => t.TaskTags)
+                .HasForeignKey(tt => tt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(tt => tt.TaskId);
+            entity.HasIndex(tt => tt.TagId);
+        });
+
+        modelBuilder.Entity<TagEntity>()
+            .HasIndex(t => t.TagName)
+            .IsUnique();
     }
 }
