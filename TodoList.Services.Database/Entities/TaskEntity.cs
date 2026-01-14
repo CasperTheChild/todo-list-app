@@ -28,4 +28,6 @@ public class TaskEntity
     public ICollection<TaskAssignmentEntity> AssignedUsers { get; set; } = new List<TaskAssignmentEntity>();
 
     public ICollection<TaskTagEntity> TaskTags { get; set; } = new List<TaskTagEntity>();
+
+    public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
 }

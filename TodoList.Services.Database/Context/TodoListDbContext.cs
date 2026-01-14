@@ -26,6 +26,8 @@ public class TodoListDbContext : IdentityDbContext<ApplicationUser, IdentityRole
 
     public DbSet<TaskTagEntity> TaskTags { get; set; }
 
+    public DbSet<CommentEntity> Comments { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
     }

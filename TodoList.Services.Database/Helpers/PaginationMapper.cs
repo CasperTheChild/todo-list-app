@@ -58,4 +58,15 @@ public static class PaginationMapper
             CurrentPage = pageNum,
         };
     }
+
+    public static PaginatedModel<CommentModel> ToPaginatedModel(IEnumerable<CommentModel> models, int totalItems, int pageNum, int pageSize)
+    {
+        return new PaginatedModel<CommentModel>
+        {
+            Items = models,
+            TotalItems = totalItems,
+            ItemsPerPage = pageSize,
+            CurrentPage = pageNum,
+        };
+    }
 }
